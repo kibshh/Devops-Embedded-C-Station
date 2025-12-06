@@ -1,5 +1,8 @@
 # Embedded C Project Template
 
+[![CI](https://github.com/USERNAME/REPO_NAME/actions/workflows/ci.yml/badge.svg)](https://github.com/USERNAME/REPO_NAME/actions/workflows/ci.yml)
+[![Build Status](https://github.com/USERNAME/REPO_NAME/workflows/CI/badge.svg)](https://github.com/USERNAME/REPO_NAME/actions)
+
 This is a template project structure for embedded C development.
 
 ## Project Structure
@@ -47,5 +50,12 @@ This template includes a CI workflow that builds your project. Before using it:
    - Change `repository: yourusername/Devops_Embedded_C` to your actual DevOps repo
    - If your DevOps repo is private, add a GitHub token secret
 
-2. Alternative: Publish the Docker image to Docker Hub/GHCR and update the workflow to use it directly
+2. Update README.md badges:
+   - Replace `USERNAME/REPO_NAME` in the badge URLs with your GitHub username and repository name
+
+3. Configure notifications (optional):
+   - **Email**: Set secrets `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`, `NOTIFICATION_EMAIL`
+   - **Slack**: Set secret `SLACK_WEBHOOK_URL`
+
+4. Alternative: Publish the Docker image to Docker Hub/GHCR and update the workflow to use it directly
 

@@ -245,3 +245,148 @@ jobs:
         retention-days: 30
         if-no-files-found: warn
 
+  cleanup:
+    name: Cleanup Old Artifacts
+    runs-on: ubuntu-latest
+    needs: [docker-image, build]
+    if: always()
+    permissions:
+      actions: write
+      contents: read
+    
+    steps:
+    - name: Delete old artifacts
+      uses: geekyeggo/delete-artifact@v5
+      with:
+        name: |
+          native-build
+          arm-build
+        failOnError: false
+        minDays: 0
+        maxDays: 90
+
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [docker-image, build]
+    if: failure() && (github.event_name == 'push' || github.event_name == 'pull_request')
+    permissions:
+      contents: read
+      issues: write
+    
+    steps:
+    - name: Set notification flags
+      id: set-flags
+      run: |
+        if [ -n "${{ secrets.SMTP_SERVER }}" ]; then
+          echo "EMAIL_ENABLED=true" >> $GITHUB_ENV
+        fi
+        if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+          echo "SLACK_ENABLED=true" >> $GITHUB_ENV
+        fi
+    
+    - name: Check workflow status
+      id: check-status
+      run: |
+        DOCKER_STATUS="${{ needs.docker-image.result }}"
+        BUILD_STATUS="${{ needs.build.result }}"
+        
+        FAILED_JOBS=""
+        if [ "$DOCKER_STATUS" != "success" ]; then
+          FAILED_JOBS="${FAILED_JOBS}docker-image "
+        fi
+        if [ "$BUILD_STATUS" != "success" ]; then
+          FAILED_JOBS="${FAILED_JOBS}build "
+        fi
+        
+        echo "failed_jobs=$FAILED_JOBS" >> $GITHUB_OUTPUT
+        echo "Workflow failed. Failed jobs: $FAILED_JOBS"
+    
+    - name: Create issue comment (for PRs)
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const failedJobs = '${{ steps.check-status.outputs.failed_jobs }}'.trim();
+          const body = `## ❌ CI Workflow Failed
+          
+          **Failed Jobs:** ${failedJobs || 'Unknown'}
+          
+          **Workflow Run:** [${{ github.workflow }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          
+          **Commit:** \`${{ github.sha }}\`
+          
+          **Branch:** \`${{ github.ref_name }}\`
+          
+          Please check the workflow logs for details.`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+    
+    - name: Send email notification
+      if: env.EMAIL_ENABLED == 'true'
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: ${{ secrets.SMTP_SERVER }}
+        server_port: ${{ secrets.SMTP_PORT }}
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: "CI Workflow Failed: ${{ github.repository }}"
+        to: ${{ secrets.NOTIFICATION_EMAIL }}
+        from: ${{ secrets.SMTP_FROM }}
+        body: |
+          CI Workflow Failed
+          
+          Repository: ${{ github.repository }}
+          Workflow: ${{ github.workflow }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          Failed Jobs: ${{ steps.check-status.outputs.failed_jobs }}
+          
+          View details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    
+    - name: Send Slack notification
+      if: env.SLACK_ENABLED == 'true'
+      uses: slackapi/slack-github-action@v1
+      with:
+        payload: |
+          {
+            "text": "❌ CI Workflow Failed",
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "❌ CI Workflow Failed"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Repository:*\n${{ github.repository }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Branch:*\n${{ github.ref_name }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Failed Jobs:*\n${{ steps.check-status.outputs.failed_jobs }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Workflow:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+

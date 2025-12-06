@@ -1,5 +1,8 @@
 # Embedded C DevOps Station
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/)
+
 A complete DevOps environment for embedded C projects, providing development, building, testing, deployment, and CI/CD capabilities.
 
 ## Overview
@@ -101,6 +104,17 @@ Each project includes a GitHub Actions workflow template (`.github/workflows/ci.
 - Builds the project natively (for testing)
 - Builds for ARM target (for embedded deployment)
 - Uploads build artifacts
+- Automatically cleans up old artifacts (90+ days)
+- Sends failure notifications (email/Slack) when configured
+
+### Features
+
+- **Artifact Retention**: Native artifacts kept for 7 days, ARM artifacts for 30 days
+- **Automatic Cleanup**: Old artifacts (>90 days) are automatically deleted
+- **Failure Notifications**: 
+  - PR comments on workflow failures
+  - Email notifications (when SMTP configured)
+  - Slack notifications (when webhook configured)
 
 The workflow automatically uses the Docker container for consistent builds.
 
