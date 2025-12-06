@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# NOTE: Update DEVOPS_REPO_URL to point to your DevOps infrastructure repo
+# Or use a pre-built Docker image from Docker Hub
+env:
+  DEVOPS_REPO_URL: "https://github.com/yourusername/Devops_Embedded_C.git"
+  DOCKER_IMAGE: "embedded-c-devops:latest"
+
+jobs:
+  build-native:
+    name: Build (Native)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
+    
+    - name: Checkout DevOps repo (for Dockerfile)
+      uses: actions/checkout@v4
+      with:
+        repository: yourusername/Devops_Embedded_C  # Update this!
+        path: devops-infra
+        # If private repo, add: token: ${{ secrets.DEVOPS_REPO_TOKEN }}
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ env.DOCKER_IMAGE }} -f devops-infra/docker/Dockerfile devops-infra/
+    
+    - name: Build project (native)
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace \
+          ${{ env.DOCKER_IMAGE }} \
+          make clean && make
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: native-build
+        path: |
+          build/*
+          !build/*.o
+
+  build-arm:
+    name: Build (ARM)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
+    
+    - name: Checkout DevOps repo (for Dockerfile)
+      uses: actions/checkout@v4
+      with:
+        repository: yourusername/Devops_Embedded_C  # Update this!
+        path: devops-infra
+        # If private repo, add: token: ${{ secrets.DEVOPS_REPO_TOKEN }}
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ env.DOCKER_IMAGE }} -f devops-infra/docker/Dockerfile devops-infra/
+    
+    - name: Build project (ARM)
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace \
+          ${{ env.DOCKER_IMAGE }} \
+          make clean && make TARGET=arm
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: arm-build
+        path: |
+          build/*.elf
+          build/*.hex
+          build/*.bin
+

@@ -1,0 +1,50 @@
+# Build artifacts (generated files)
+build/
+bin/
+obj/
+*.o
+*.a
+*.so
+*.elf
+*.hex
+*.bin
+*.map
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Python (if you add Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Logs
+*.log
+
+# Temporary files
+*.cache
+.cache/
+
+# Individual project Git repositories
+# Each project in projects/ should have its own Git repo
+projects/*/.git/
+
+# Ignore individual project source code (each project has its own repo)
+# Only track the template directory
+projects/*
+!projects/template/
+

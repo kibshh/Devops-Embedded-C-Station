@@ -1,0 +1,44 @@
+# .dockerignore - Files to exclude from Docker build context
+# This speeds up Docker builds by not copying unnecessary files into the build context
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation (not needed in container)
+*.md
+docs/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts (will be generated inside container)
+build/
+bin/
+obj/
+*.o
+*.a
+*.so
+*.elf
+*.hex
+*.bin
+
+# Project-specific build outputs
+projects/*/build/
+projects/*/bin/
+projects/*/obj/
+
+# Temporary files
+*.tmp
+*.log
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
