@@ -6,10 +6,8 @@ on:
   pull_request:
     branches: [ main, develop ]
 
-# NOTE: Update DEVOPS_REPO_URL to point to your DevOps infrastructure repo
-# Or use a pre-built Docker image from Docker Hub
 env:
-  DEVOPS_REPO_URL: "https://github.com/yourusername/Devops_Embedded_C.git"
+  DEVOPS_REPO_URL: "https://github.com/kibshh/Devops-Embedded-C-Station.git"
   DOCKER_IMAGE: "embedded-c-devops:latest"
 
 jobs:
@@ -24,7 +22,7 @@ jobs:
     - name: Checkout DevOps repo (for Dockerfile)
       uses: actions/checkout@v4
       with:
-        repository: yourusername/Devops_Embedded_C  # Update this!
+        repository: kibshh/Devops-Embedded-C-Station
         path: devops-infra
         # If private repo, add: token: ${{ secrets.DEVOPS_REPO_TOKEN }}
     
@@ -63,7 +61,7 @@ jobs:
     - name: Checkout DevOps repo (for Dockerfile)
       uses: actions/checkout@v4
       with:
-        repository: yourusername/Devops_Embedded_C  # Update this!
+        repository: kibshh/Devops-Embedded-C-Station
         path: devops-infra
         # If private repo, add: token: ${{ secrets.DEVOPS_REPO_TOKEN }}
     
