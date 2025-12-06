@@ -16,13 +16,21 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Extract DevOps repo owner/repo
+      id: devops-repo
+      run: |
+        REPO_URL="${{ env.DEVOPS_REPO_URL }}"
+        # Remove https://github.com/ prefix and .git suffix
+        REPO_PATH=$(echo "$REPO_URL" | sed 's|https://github.com/||' | sed 's|\.git$||')
+        echo "repository=$REPO_PATH" >> $GITHUB_OUTPUT
+    
     - name: Checkout project
       uses: actions/checkout@v4
     
     - name: Checkout DevOps repo (for Dockerfile)
       uses: actions/checkout@v4
       with:
-        repository: kibshh/Devops-Embedded-C-Station
+        repository: ${{ steps.devops-repo.outputs.repository }}
         path: devops-infra
         # If private repo, add: token: ${{ secrets.DEVOPS_REPO_TOKEN }}
     
@@ -61,13 +69,21 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Extract DevOps repo owner/repo
+      id: devops-repo
+      run: |
+        REPO_URL="${{ env.DEVOPS_REPO_URL }}"
+        # Remove https://github.com/ prefix and .git suffix
+        REPO_PATH=$(echo "$REPO_URL" | sed 's|https://github.com/||' | sed 's|\.git$||')
+        echo "repository=$REPO_PATH" >> $GITHUB_OUTPUT
+    
     - name: Checkout project
       uses: actions/checkout@v4
     
     - name: Checkout DevOps repo (for Dockerfile)
       uses: actions/checkout@v4
       with:
-        repository: kibshh/Devops-Embedded-C-Station
+        repository: ${{ steps.devops-repo.outputs.repository }}
         path: devops-infra
         # If private repo, add: token: ${{ secrets.DEVOPS_REPO_TOKEN }}
     
