@@ -21,18 +21,34 @@ OBJECTS = $(SOURCES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 CFLAGS = -Wall -Wextra -std=c11
 INCLUDES = -I$(INC_DIR)
 
+# Debug build support
+ifdef DEBUG
+    CFLAGS += -g -O0 -DDEBUG
+else
+    CFLAGS += -DNDEBUG
+endif
+
 # Target-specific settings
 ifeq ($(TARGET),arm)
     # ARM cross-compiler settings
     CC = arm-none-eabi-gcc
     CFLAGS += -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
-    CFLAGS += -Os -ffunction-sections -fdata-sections
-    LDFLAGS = -Wl,--gc-sections -T linker_script.ld
+    ifndef DEBUG
+        CFLAGS += -Os -ffunction-sections -fdata-sections
+        LDFLAGS = -Wl,--gc-sections -T linker_script.ld
+    else
+        CFLAGS += -O0
+        LDFLAGS = -T linker_script.ld
+    endif
     OUTPUT = $(BUILD_DIR)/$(PROJECT_NAME).elf
 else
     # Native build (for testing on host)
     CC = gcc
-    CFLAGS += -g -O0
+    ifndef DEBUG
+        CFLAGS += -O2
+    else
+        CFLAGS += -g -O0
+    endif
     OUTPUT = $(BUILD_DIR)/$(PROJECT_NAME)
 endif
 
