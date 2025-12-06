@@ -30,8 +30,14 @@ jobs:
       uses: docker/setup-buildx-action@v3
     
     - name: Build Docker image
-      run: |
-        docker build -t ${{ env.DOCKER_IMAGE }} -f devops-infra/docker/Dockerfile devops-infra/
+      uses: docker/build-push-action@v5
+      with:
+        context: devops-infra/
+        file: devops-infra/docker/Dockerfile
+        tags: ${{ env.DOCKER_IMAGE }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        load: true
     
     - name: Build project (native)
       run: |
@@ -69,8 +75,14 @@ jobs:
       uses: docker/setup-buildx-action@v3
     
     - name: Build Docker image
-      run: |
-        docker build -t ${{ env.DOCKER_IMAGE }} -f devops-infra/docker/Dockerfile devops-infra/
+      uses: docker/build-push-action@v5
+      with:
+        context: devops-infra/
+        file: devops-infra/docker/Dockerfile
+        tags: ${{ env.DOCKER_IMAGE }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        load: true
     
     - name: Build project (ARM)
       run: |
