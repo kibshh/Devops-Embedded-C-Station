@@ -13,7 +13,7 @@ This project provides an isolated, reproducible development environment for embe
 - **Build systems** (Make, CMake)
 - **Testing frameworks**
 - **CI/CD integration**
-- **Code quality tools**
+- **Code quality tools** (cppcheck, clang-tidy, clang-format)
 
 ## Quick Start
 
@@ -103,12 +103,18 @@ git push -u origin main
 Each project includes a GitHub Actions workflow template (`.github/workflows/ci.yml`) that:
 - Builds the project natively (for testing)
 - Builds for ARM target (for embedded deployment)
+- Runs code quality checks (static analysis, formatting)
 - Uploads build artifacts
 - Automatically cleans up old artifacts (90+ days)
 - Sends failure notifications (email/Slack) when configured
 
 ### Features
 
+- **Code Quality Checks**:
+  - cppcheck for static analysis
+  - clang-tidy for advanced static analysis
+  - clang-format for code formatting checks
+  - Results uploaded as artifacts and annotated in PRs
 - **Artifact Retention**: Native artifacts kept for 7 days, ARM artifacts for 30 days
 - **Automatic Cleanup**: Old artifacts (>90 days) are automatically deleted
 - **Failure Notifications**: 

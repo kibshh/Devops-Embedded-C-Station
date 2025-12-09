@@ -34,6 +34,21 @@ make TARGET=arm
 make clean
 ```
 
+### Code Quality Checks
+
+Run all code quality checks:
+```bash
+make quality
+```
+
+Individual checks:
+```bash
+make cppcheck    # Static analysis with cppcheck
+make tidy        # Static analysis with clang-tidy
+make format      # Check code formatting
+make format-fix  # Auto-fix formatting issues
+```
+
 ## Usage
 
 1. Copy this template to create a new project
@@ -42,9 +57,23 @@ make clean
 4. Modify `Makefile` as needed for your target platform
 5. Configure GitHub Actions workflow (`.github/workflows/ci.yml`) - update the DevOps repo URL
 
+## Code Quality
+
+This project includes code quality tools configured:
+
+- **cppcheck**: Static analysis for C/C++
+- **clang-tidy**: Advanced static analysis
+- **clang-format**: Code formatting (see `.clang-format`)
+
+Configuration files:
+- `.clang-format` - Code formatting rules
+- `.clang-tidy` - Static analysis rules
+- `.cppcheckrc` - Cppcheck configuration
+- `.cppcheck-suppressions` - Suppressions for false positives
+
 ## GitHub Actions
 
-This template includes a CI workflow that builds your project. Before using it:
+This template includes a CI workflow that builds your project and runs code quality checks. Before using it:
 
 1. Update `.github/workflows/ci.yml`:
    - Change `repository: yourusername/Devops_Embedded_C` to your actual DevOps repo

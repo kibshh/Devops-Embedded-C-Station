@@ -32,13 +32,19 @@ RUN apt-get update && apt-get install -y \
     vim \
     python3 \
     python3-pip \
+    cppcheck \
+    clang-tidy \
+    clang-format \
     && rm -rf /var/lib/apt/lists/*
 
 # Verify installations
 RUN arm-none-eabi-gcc --version && \
     avr-gcc --version && \
     gcc --version && \
-    cmake --version
+    cmake --version && \
+    cppcheck --version && \
+    clang-tidy --version && \
+    clang-format --version
 
 # Set default command to bash shell
 CMD ["/bin/bash"]

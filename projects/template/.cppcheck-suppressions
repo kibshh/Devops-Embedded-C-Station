@@ -1,0 +1,15 @@
+# Cppcheck suppressions file
+# Add suppressions for false positives or acceptable patterns
+
+# Suppress missing includes for system headers
+missingIncludeSystem
+
+# Suppress unused functions (common in embedded projects)
+unusedFunction
+
+# Suppress unmatched suppressions warnings
+unmatchedSuppression
+
+# Example: Suppress specific warnings for specific files
+# unusedFunction:src/legacy.c
+

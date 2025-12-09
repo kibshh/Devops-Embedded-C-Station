@@ -6,6 +6,11 @@ build/
 *.elf
 *.hex
 *.bin
+
+# Code quality reports
+*.xml
+cppcheck-report.xml
+compile_commands.json
 *.map
 
 # IDE files
