@@ -211,7 +211,7 @@ jobs:
           -v ${{ github.workspace }}:/workspace \
           -w /workspace \
           ${{ env.DOCKER_IMAGE_NAME }}:latest \
-          bash -c "make -n test >/dev/null 2>&1 && make test || echo 'No test target'"
+          make test || true
     
     - name: Upload artifacts
       if: steps.build-check.outputs.should_build == 'true' && success()
@@ -220,7 +220,10 @@ jobs:
         name: ${{ matrix.artifact_name }}
         path: |
           build/*
+          !build/CMakeFiles/**
           !build/*.o
+          !build/cmake_install.cmake
+          !build/CMakeCache.txt
         retention-days: ${{ matrix.target == 'arm' && 30 || 7 }}
         if-no-files-found: warn
 

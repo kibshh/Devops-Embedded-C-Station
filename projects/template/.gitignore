@@ -6,12 +6,18 @@ build/
 *.elf
 *.hex
 *.bin
+*.map
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*.cmake
+!CMakeLists.txt
 
 # Code quality reports
 *.xml
-cppcheck-report.xml
 compile_commands.json
-*.map
 
 # IDE files
 .vscode/

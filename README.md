@@ -10,8 +10,7 @@ A complete DevOps environment for embedded C projects, providing development, bu
 This project provides an isolated, reproducible development environment for embedded C programming. It includes:
 
 - **Cross-compilation toolchains** (ARM, AVR, etc.)
-- **Build systems** (Make, CMake)
-- **Testing frameworks**
+- **CMake build system**
 - **CI/CD integration**
 - **Code quality tools**
 
