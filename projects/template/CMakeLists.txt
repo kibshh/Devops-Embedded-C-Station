@@ -39,3 +39,21 @@ endif()
 file(GLOB SOURCES "src/*.c")
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
+
+# Enable testing
+enable_testing()
+
+# Add tests - customize test directory/files as needed
+# Example: file(GLOB_RECURSE TEST_SOURCES "tests/*.c" "unit_tests/*.c")
+# Or specify directly: set(TEST_SOURCES "my_tests/test1.c" "my_tests/test2.c")
+file(GLOB_RECURSE TEST_SOURCES "tests/*.c")
+if(TEST_SOURCES)
+    add_executable(test_runner ${TEST_SOURCES} ${SOURCES})
+    target_include_directories(test_runner PRIVATE include src)
+    if(TARGET_ARM)
+        # For ARM, tests are built but may need simulator/hardware to run
+        add_test(NAME unit_tests COMMAND test_runner)
+    else()
+        add_test(NAME unit_tests COMMAND test_runner)
+    endif()
+endif()

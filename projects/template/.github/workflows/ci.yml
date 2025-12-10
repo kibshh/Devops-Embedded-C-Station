@@ -211,7 +211,7 @@ jobs:
           -v ${{ github.workspace }}:/workspace \
           -w /workspace \
           ${{ env.DOCKER_IMAGE_NAME }}:latest \
-          make test || true
+          make test
     
     - name: Upload artifacts
       if: steps.build-check.outputs.should_build == 'true' && success()

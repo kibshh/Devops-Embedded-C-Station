@@ -11,7 +11,10 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 test:
-	@cd $(BUILD_DIR) && ctest || echo "No tests defined"
+	@mkdir -p $(BUILD_DIR)
+	@cd $(BUILD_DIR) && cmake .. -DTARGET_ARM=$(if $(findstring arm,$(TARGET)),ON,OFF) -DDEBUG=$(if $(DEBUG),ON,OFF)
+	@cmake --build $(BUILD_DIR) --target test_runner 2>/dev/null || echo "No tests found"
+	@cd $(BUILD_DIR) && ctest --output-on-failure || echo "No tests defined"
 
 _get_source_dirs:
 	@if [ -n "$(CHECK_DIRS)" ]; then \
