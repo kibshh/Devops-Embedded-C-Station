@@ -40,26 +40,26 @@ _get_cpp_files:
 cppcheck:
 	@mkdir -p $(BUILD_DIR)
 	@DIRS=$$(make -s _get_source_dirs); \
-	SUPPRESSIONS=$(if $(wildcard .cppcheck-suppressions),--suppressions-list=.cppcheck-suppressions,); \
+	SUPPRESSIONS=$(if $(wildcard .cppcheck-suppressions),--suppressions-list=.cppcheck-suppressions,$(if $(wildcard quality/.cppcheck-suppressions),--suppressions-list=quality/.cppcheck-suppressions,)); \
 	cppcheck --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction \
 		--inline-suppr $$SUPPRESSIONS --xml --xml-version=2 \
 		--output-file=$(BUILD_DIR)/cppcheck-report.xml $$DIRS || true
 
 format:
 	@FILES=$$(make -s _get_source_files); \
-	STYLE=$(if $(wildcard .clang-format),--style=file,); \
+	STYLE=$(if $(wildcard .clang-format),--style=file,$(if $(wildcard quality/.clang-format),--style=file:quality/.clang-format,)); \
 	for f in $$FILES; do \
 		clang-format $$STYLE --dry-run --Werror "$$f" >/dev/null 2>&1 || exit 1; \
 	done
 
 format-fix:
 	@FILES=$$(make -s _get_source_files); \
-	STYLE=$(if $(wildcard .clang-format),--style=file,); \
+	STYLE=$(if $(wildcard .clang-format),--style=file,$(if $(wildcard quality/.clang-format),--style=file:quality/.clang-format,)); \
 	for f in $$FILES; do clang-format $$STYLE -i "$$f"; done
 
 tidy:
 	@FILES=$$(make -s _get_cpp_files); \
-	CONFIG=$(if $(wildcard .clang-tidy),-config-file=.clang-tidy,); \
+	CONFIG=$(if $(wildcard .clang-tidy),-config-file=.clang-tidy,$(if $(wildcard quality/.clang-tidy),-config-file=quality/.clang-tidy,)); \
 	for f in $$FILES; do clang-tidy $$CONFIG "$$f" -- -std=c11 || true; done
 
 quality: cppcheck tidy format

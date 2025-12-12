@@ -21,76 +21,57 @@ This project provides an isolated, reproducible development environment for embe
 
 ### Running the Development Environment
 
+Projects created from the template include their own `.devops/run_dev_env.sh` script:
+
 ```bash
-./scripts/run_dev_env.sh
+cd your_project
+./.devops/run_dev_env.sh
 ```
 
-The script will automatically build the Docker image if needed and start the container.
+The script uses the Dockerfile from `.devops/Dockerfile` to build and run the development container.
 
 ## Project Structure
 
 ```
 .
-├── docker/              # Docker-related files
-│   └── Dockerfile      # Main development environment
-├── projects/            # Your embedded C projects go here
+├── templates/           # Project templates (not user projects)
+│   └── template/       # Template for creating new projects
+│       └── .devops/    # Contains Dockerfile and run_dev_env.sh
 ├── scripts/            # Utility scripts
+│   └── create_project.sh  # Script to create new projects
 └── README.md           # This file
 ```
 
 ## Creating a New Project
 
-Each project gets its own Git repository and GitHub Actions workflow.
+The template is used to create new projects. Projects are automatically created next to the DevOps station directory.
 
 ### Quick Start
 
 ```bash
-# Create a new project from template
+# Create a new project
 ./scripts/create_project.sh my_project_name
 
 # Or with GitHub URL
-./scripts/create_project.sh my_project_name https://github.com/username/my_project_name.git
+./scripts/create_project.sh my_project_name https://github.com/username/my_project.git
 ```
+
+**Important:** Projects are created next to the DevOps station directory (one level up). If the station is at `/path/to/Devops_Embedded_C`, the project will be at `/path/to/my_project_name`.
 
 This script will:
-1. Copy the template to `projects/my_project_name/`
-2. Initialize a Git repository in the project directory
-3. Make an initial commit
-4. Optionally set up GitHub remote
+1. Copy the template to `../<project_name>/` (next to DevOps station folder)
+2. Update project name in CMakeLists.txt
+3. Initialize Git repository
+4. Make initial commit
+5. Add GitHub remote (if URL provided)
 
-### Manual Setup
+**Note:** GitHub URL is optional. You can add it later with `git remote add origin <url>`.
 
-If you prefer to set up manually:
+## Repository Structure
 
-```bash
-# 1. Copy template
-cp -r projects/template projects/my_project_name
-cd projects/my_project_name
-
-# 2. Initialize Git
-git init
-git add .
-git commit -m "Initial commit"
-
-# 3. Create GitHub repo and push
-git remote add origin https://github.com/username/my_project_name.git
-git branch -M main
-git push -u origin main
-```
-
-## Git Repository Structure
-
-- **Root repository** (optional): This DevOps infrastructure can be version controlled separately
-- **Individual projects**: Each project in `projects/` has its own Git repository
-- **Template**: The `projects/template/` directory is NOT a Git repo (it's just a template)
-
-### Why Separate Repos?
-
-- Each project can have its own GitHub repository
-- Independent version control and release cycles
-- Separate GitHub Actions workflows per project
-- Easier collaboration on individual projects
-- Cleaner CI/CD pipelines
+- **This repository**: Contains templates and infrastructure for embedded C development
+- **Templates**: The `templates/template/` directory is a template for creating new projects
+- **User projects**: Created next to the DevOps station directory (one level up)
 
 ## GitHub Actions
 
@@ -114,8 +95,9 @@ The workflow automatically uses the Docker container for consistent builds.
 
 ## Next Steps
 
-1. Run `./scripts/run_dev_env.sh` to start the development environment
-2. Create your first embedded project using `./scripts/create_project.sh`
-3. Push your project to GitHub
-4. GitHub Actions will automatically build on push/PR
+1. Create your first embedded project using `./scripts/create_project.sh my_project`
+2. Navigate to your project: `cd my_project`
+3. Run `./.devops/run_dev_env.sh` to start the development environment
+4. Push your project to GitHub
+5. GitHub Actions will automatically build on push/PR using the project's own Dockerfile
 

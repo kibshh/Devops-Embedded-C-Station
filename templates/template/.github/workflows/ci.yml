@@ -10,7 +10,6 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
 
 env:
-  DEVOPS_REPO_URL: "https://github.com/kibshh/Devops-Embedded-C-Station.git"
   DOCKER_IMAGE_NAME: "embedded-c-devops"
 
 jobs:
@@ -22,17 +21,8 @@ jobs:
       packages: write
     
     steps:
-    - name: Extract DevOps repo
-      id: devops-repo
-      run: |
-        REPO_PATH=$(echo "${{ env.DEVOPS_REPO_URL }}" | sed 's|https://github.com/||' | sed 's|\.git$||')
-        echo "repository=$REPO_PATH" >> $GITHUB_OUTPUT
-    
-    - name: Checkout DevOps repo (for Dockerfile)
+    - name: Checkout project
       uses: actions/checkout@v4
-      with:
-        repository: ${{ steps.devops-repo.outputs.repository }}
-        path: devops-infra
     
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -48,7 +38,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/${{ steps.devops-repo.outputs.repository }}/${{ env.DOCKER_IMAGE_NAME }}
+        images: ghcr.io/${{ github.repository }}/${{ env.DOCKER_IMAGE_NAME }}
         tags: |
           type=ref,event=branch
           type=sha
@@ -57,8 +47,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: devops-infra/
-        file: devops-infra/docker/Dockerfile
+        context: .devops
+        file: .devops/Dockerfile
         push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -78,12 +68,6 @@ jobs:
       checks: write
     
     steps:
-    - name: Extract DevOps repo
-      id: devops-repo
-      run: |
-        REPO_PATH=$(echo "${{ env.DEVOPS_REPO_URL }}" | sed 's|https://github.com/||' | sed 's|\.git$||')
-        echo "repository=$REPO_PATH" >> $GITHUB_OUTPUT
-    
     - name: Checkout project
       uses: actions/checkout@v4
     
@@ -100,13 +84,13 @@ jobs:
     
     - name: Setup Docker image
       run: |
-        IMAGE_BASE="ghcr.io/${{ steps.devops-repo.outputs.repository }}/${{ env.DOCKER_IMAGE_NAME }}"
+        IMAGE_BASE="ghcr.io/${{ github.repository }}/${{ env.DOCKER_IMAGE_NAME }}"
         if [ "${{ github.event_name }}" != "pull_request" ] || [ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]; then
           docker pull ${IMAGE_BASE}:latest || docker pull ${IMAGE_BASE}:${{ github.sha }} || true
           docker tag $(docker images --format "{{.Repository}}:{{.Tag}}" ${IMAGE_BASE} | head -n1) ${{ env.DOCKER_IMAGE_NAME }}:latest 2>/dev/null || true
-        else
-          git clone --depth 1 ${{ env.DEVOPS_REPO_URL }} /tmp/devops && \
-          docker build -t ${{ env.DOCKER_IMAGE_NAME }}:latest -f /tmp/devops/docker/Dockerfile /tmp/devops/ || true
+        fi
+        if ! docker image inspect ${{ env.DOCKER_IMAGE_NAME }}:latest > /dev/null 2>&1; then
+          docker build -t ${{ env.DOCKER_IMAGE_NAME }}:latest -f .devops/Dockerfile .devops
         fi
     
     - name: Run code quality checks
@@ -160,13 +144,6 @@ jobs:
           echo "should_build=false" >> $GITHUB_OUTPUT
         fi
     
-    - name: Extract DevOps repo
-      if: steps.build-check.outputs.should_build == 'true'
-      id: devops-repo
-      run: |
-        REPO_PATH=$(echo "${{ env.DEVOPS_REPO_URL }}" | sed 's|https://github.com/||' | sed 's|\.git$||')
-        echo "repository=$REPO_PATH" >> $GITHUB_OUTPUT
-    
     - name: Checkout project
       if: steps.build-check.outputs.should_build == 'true'
       uses: actions/checkout@v4
@@ -186,13 +163,13 @@ jobs:
     - name: Setup Docker image
       if: steps.build-check.outputs.should_build == 'true'
       run: |
-        IMAGE_BASE="ghcr.io/${{ steps.devops-repo.outputs.repository }}/${{ env.DOCKER_IMAGE_NAME }}"
+        IMAGE_BASE="ghcr.io/${{ github.repository }}/${{ env.DOCKER_IMAGE_NAME }}"
         if [ "${{ github.event_name }}" != "pull_request" ] || [ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]; then
           docker pull ${IMAGE_BASE}:latest || docker pull ${IMAGE_BASE}:${{ github.sha }} || true
           docker tag $(docker images --format "{{.Repository}}:{{.Tag}}" ${IMAGE_BASE} | head -n1) ${{ env.DOCKER_IMAGE_NAME }}:latest 2>/dev/null || true
-        else
-          git clone --depth 1 ${{ env.DEVOPS_REPO_URL }} /tmp/devops && \
-          docker build -t ${{ env.DOCKER_IMAGE_NAME }}:latest -f /tmp/devops/docker/Dockerfile /tmp/devops/ || true
+        fi
+        if ! docker image inspect ${{ env.DOCKER_IMAGE_NAME }}:latest > /dev/null 2>&1; then
+          docker build -t ${{ env.DOCKER_IMAGE_NAME }}:latest -f .devops/Dockerfile .devops
         fi
     
     - name: Build

@@ -1,0 +1,4 @@
+# Exclude scripts from Docker build context
+# Dockerfile only installs dependencies, doesn't need these files
+*.sh
+

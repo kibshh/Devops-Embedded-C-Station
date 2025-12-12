@@ -39,12 +39,7 @@ env/
 *.cache
 .cache/
 
-# Individual project Git repositories
-# Each project in projects/ should have its own Git repo
-projects/*/.git/
-
-# Ignore individual project source code (each project has its own repo)
-# Only track the template directory
-projects/*
-!projects/template/
+# Only track the template directory, ignore anything else in templates/
+templates/*
+!templates/template/
 
